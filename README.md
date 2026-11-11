@@ -28,11 +28,15 @@ The offline CLI supports inspecting the same SQLite database without starting HT
 python cli.py list --db runtrace.sqlite3
 python cli.py search "release" --tag review --db runtrace.sqlite3
 python cli.py show RUN_ID --db runtrace.sqlite3
+python cli.py report RUN_ID --db runtrace.sqlite3 --format json
+python cli.py report RUN_ID --db runtrace.sqlite3 --format csv --redact "private-literal" > report.csv
 python cli.py archive-export RUN_ID --db runtrace.sqlite3 > run.json
 python cli.py archive-import run.json --db another.sqlite3
 ```
 
 Read commands require an existing database and do not create one. An archive includes the trace, metadata, replay cursor, and event annotations; it contains only synthetic recorded data.
+
+The `report` command exports the same evaluation report as the web interface for a saved run. JSON is the default; CSV uses the existing spreadsheet-safe cells. Repeat `--redact` to remove literal values from the output without changing the stored recording. Exit codes are `0` for passing checks, `1` for a report requiring review, and `2` for an error such as a missing run or database. Errors go to stderr as JSON, with no report on stdout. Reports evaluate recorded assertions and declared costs; they do not execute tools or call models.
 
 ## What it does
 

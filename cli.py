@@ -31,11 +31,17 @@ def main(argv=None):
     suite=sub.add_parser('suite');suite.add_argument('dataset')
     listing=sub.add_parser('list');listing.add_argument('--db',default='runtrace.sqlite3')
     show=sub.add_parser('show');show.add_argument('id');show.add_argument('--db',default='runtrace.sqlite3')
+    saved_report=sub.add_parser('report');saved_report.add_argument('id');saved_report.add_argument('--db',default='runtrace.sqlite3');saved_report.add_argument('--format',choices=['json','csv'],default='json');saved_report.add_argument('--redact',action='append',default=[])
     search=sub.add_parser('search');search.add_argument('query');search.add_argument('--tag',default='');search.add_argument('--starred',action='store_true');search.add_argument('--archived',action='store_true');search.add_argument('--limit',type=int,default=20);search.add_argument('--offset',type=int,default=0);search.add_argument('--db',default='runtrace.sqlite3')
     exported=sub.add_parser('archive-export');exported.add_argument('id');exported.add_argument('--db',default='runtrace.sqlite3')
     fingerprint=sub.add_parser('fingerprint');fingerprint.add_argument('id');fingerprint.add_argument('--db',default='runtrace.sqlite3')
     args=parser.parse_args(argv)
     try:
+        if args.command=='report':
+            run=existing_store(args.db).get(args.id)
+            if run is None:raise ValueError('Run not found')
+            print((report_json if args.format=='json' else report_csv)(run['trace'],args.redact),end='')
+            return 0 if run['summary']['status']=='pass' else 1
         if args.command=='fingerprint':
             digest=existing_store(args.db).fingerprint(args.id)
             if digest is None:raise ValueError('Run not found')
