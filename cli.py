@@ -22,6 +22,7 @@ def existing_store(path):
     return Store(path)
 
 def main(argv=None):
+    if hasattr(sys.stdout,'reconfigure'):sys.stdout.reconfigure(encoding='utf-8')
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='command',required=True)
     imp=sub.add_parser('import');imp.add_argument('trace');imp.add_argument('--db',default='runtrace.sqlite3')
     ev=sub.add_parser('evaluate');ev.add_argument('trace');ev.add_argument('--format',choices=['json','csv'],default='json');ev.add_argument('--redact',action='append',default=[])
