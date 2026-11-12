@@ -34,6 +34,8 @@ python cli.py archive-import run.json --db another.sqlite3
 
 Read commands require an existing database and do not create one. An archive includes the trace, metadata, replay cursor, and event annotations; it contains only synthetic recorded data.
 
+CLI output uses UTF-8, including redirected JSON and CSV evaluation reports, so Unicode trace names survive export on Windows and other shells with narrow default encodings.
+
 ## What it does
 
 - Generate clean, timeout, rate-limit, duplicate-delivery, cancellation, uncertain-delivery, and recorded-timing scenarios.
