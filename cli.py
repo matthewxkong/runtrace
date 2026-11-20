@@ -56,11 +56,15 @@ def main(argv=None):
             print(json.dumps([{'id':r['id'],'name':r['trace']['name'],'created':r['created'],'status':r['summary']['status'],'tags':r['metadata']['tags'],'archived':r['metadata']['archived']} for r in rows]))
             return 0
         if args.command=='batch-import':
-            result=Store(args.db).import_batch(read_json(args.traces));print(json.dumps({'ids':[r['id'] for r in result]}));return 0
+            traces = read_json(args.traces)
+            result=Store(args.db).import_batch(traces);print(json.dumps({'ids':[r['id'] for r in result]}));return 0
         if args.command=='archive-import':
-            result=Store(args.db).import_recording(read_json(args.archive));print(json.dumps({'id':result['id']}));return 0
+            archive = read_json(args.archive)
+            result=Store(args.db).import_recording(archive);print(json.dumps({'id':result['id']}));return 0
         if args.command=='compare' and args.baseline=='-' and args.candidate=='-':raise ValueError('Only one comparison input may use stdin')
-        if args.command=='import':result=Store(args.db).save(read_json(args.trace));print(json.dumps({'id':result['id'],'status':result['summary']['status']}));return 0
+        if args.command=='import':
+            trace = read_json(args.trace)
+            result=Store(args.db).save(trace);print(json.dumps({'id':result['id'],'status':result['summary']['status']}));return 0
         if args.command=='evaluate':
             t=read_json(args.trace);validate(t);print((report_json if args.format=='json' else report_csv)(t,args.redact),end='');return 0 if evaluate(t)['status']=='pass' else 1
         if args.command=='compare':

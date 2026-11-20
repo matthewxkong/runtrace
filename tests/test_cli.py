@@ -4,6 +4,14 @@ from server import simulate
 
 ROOT=Path(__file__).resolve().parents[1]
 class CLITests(unittest.TestCase):
+    def test_parse_before_import(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for command in ('import', 'batch-import', 'archive-import'):
+                path = Path(folder) / (command + '.db')
+                result = self.run_cli([command, '-', '--db', str(path)], '{')
+                self.assertEqual(result.returncode, 2)
+                self.assertFalse(path.exists(), command)
+
     def run_cli(self,args,stdin=None):return subprocess.run([sys.executable,str(ROOT/'cli.py'),*args],input=stdin,text=True,capture_output=True,cwd=ROOT)
     def test_evaluate_stdin_pass_and_review_exit_codes(self):
         good=self.run_cli(['evaluate','-'],json.dumps(simulate('baseline')));self.assertEqual(good.returncode,0);self.assertTrue(json.loads(good.stdout)['synthetic'])
