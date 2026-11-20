@@ -4,6 +4,17 @@ from server import simulate
 
 ROOT=Path(__file__).resolve().parents[1]
 class CLITests(unittest.TestCase):
+    def test_trace_diff_cli(self):
+        from reports import trace_diff
+        baseline, candidate = simulate('baseline'), simulate('timeout')
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'candidate.json'
+            path.write_text(json.dumps(candidate), encoding='utf-8')
+            result = self.run_cli(['diff', '-', str(path)], json.dumps(baseline))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), trace_diff(baseline, candidate))
+        self.assertEqual(self.run_cli(['diff', '-', '-']).returncode, 2)
+
     def run_cli(self,args,stdin=None):return subprocess.run([sys.executable,str(ROOT/'cli.py'),*args],input=stdin,text=True,capture_output=True,cwd=ROOT)
     def test_evaluate_stdin_pass_and_review_exit_codes(self):
         good=self.run_cli(['evaluate','-'],json.dumps(simulate('baseline')));self.assertEqual(good.returncode,0);self.assertTrue(json.loads(good.stdout)['synthetic'])
